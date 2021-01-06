@@ -1,0 +1,44 @@
+/*
+Objects:
+
+Table{
+	Record Page List
+	Indexes
+	Record size
+	Num records
+	Fields{
+		Name
+		Type
+	}
+}
+
+Record{
+	Data corresponding to fields
+	group id
+	Bits{
+		lock
+		permissions{
+			group/others{
+				read
+				write
+			}
+		}
+		dirty
+		valid/(deleted)?
+		
+	}
+}
+
+Buffer{
+	Page list
+	Page Headers{
+		Refcount
+		Bits{
+			dirty
+			valid
+		}
+		Num records?
+	}
+}
+
+*/
