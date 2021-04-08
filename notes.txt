@@ -41,4 +41,23 @@ Buffer{
 	}
 }
 
+
+
+Files:
+
+Each table has a:
+	metadata file
+		record size (redundant)
+		num fields
+		num records (space), num valid records (actual)
+		VARIABLE LENGTH:
+			fields
+				name (64 bytes)
+				type (1 byte?)
+			bitmaps?
+		LATER:
+			index info
+	table file
+		JUST records
+
 */
