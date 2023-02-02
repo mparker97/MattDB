@@ -26,7 +26,7 @@ int pc_queue_init(struct pc_queue* q, size_t sz, size_t elm_sz){
 	}
 	else{ // fixed-sized array back
 		if ((q->queue = malloc(sz * elm_sz)) == NULL){
-			return -ENOMEM;
+			fail_out(ENOMEM);
 		}
 		q->queue_sz = sz;
 	}
@@ -45,7 +45,7 @@ void pq_queue_deinit(struct pc_queue* q){
 void pc_queue_enqueue(struct pc_queue* q, void* elm){
 	pthread_mutex_lock(&q->lock);
 	while (q->cap == q->sz)
-		pthread_cond_wait(&q->lock, &q->full);
+		pthread_cond_wait(&q->full, &q->lock);
 	memcpy((char*)(q->queue) + q->cap * q->elm_sz, elm, q->elm_sz);
 	q->cap++;
 	pthread_cond_signal(&q->empty);
@@ -63,7 +63,7 @@ void pc_queue_enqueue_LL(struct pc_queue* q, void* elm){
 void pc_queue_dequeue(struct pc_queue* q, void* elm){
 	pthread_mutex_lock(&q->lock);
 	while (q->cap == 0)
-		pthread_cond_wait(&q->lock, &q->empty);
+		pthread_cond_wait(&q->empty, &q->lock);
 	q->cap--;
 	memcpy(elm, (char*)(q->queue) + q->cap * q->elm_sz, q->elm_sz);
 	pthread_cond_signal(&q->full);
@@ -74,7 +74,7 @@ void* pc_queue_dequeue_LL(struct pc_queue* q){
 	void* ret;
 	pthread_mutex_lock(&q->lock);
 	while (q->cap == 0)
-		pthread_cond_wait(&q->lock, &q->empty);
+		pthread_cond_wait(&q->empty, &q->lock);
 	q->cap--;
 	ret = l_list_t_del_after(&q->list, (struct l_list*)(&q->list));
 	pthread_cond_signal(&q->full);

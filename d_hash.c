@@ -46,12 +46,12 @@ int d_hash_insert(struct d_hash* dh, void* elm){
 			break;
 		}
 		if ((void*)(bucket->bucket[i]) == elm){
-			return E_EXIST;
+			fail_out(EEXIST);
 		}
 	}
 	for (i = 0; i < dh->bucket_sz * dh->al.elm_sz; i += dh->al.elm_sz){
 		if ((void*)(bucket->bucket[i]) == elm){
-			return E_EXIST;
+			fail_out(EEXIST);
 		}
 	}
 	

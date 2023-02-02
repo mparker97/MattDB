@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <stdio.h>
 #include "error.h"
 #define PG_SZ 4096
 #define BITS_PER_BYTE 8
@@ -9,6 +10,12 @@ typedef unsigned long off_t;
 typedef long idx_t;
 typedef uint64_t size_t;
 typedef uint64_t id_t;
+
+extern FILE* tables_f;
+extern unsigned char* db_path;
+extern int dp_path_len;
+
+#define TABLE_NAME_SZ 64
 
 #define offset_of(t, m) ((size_t)&((t*)0)->m)
 #define container_of(t, m, p) ((t*)((char*)(p) - offset_of(t, m)))
@@ -86,10 +93,12 @@ static ssize_t ffzbm(uint64_t* bm, ssize_t sz){
 	return s;
 }
 
-// pg_roundup: Round x up to the nearest page size multiple.
-#define pg_roundup(x) (((x) + PG_SZ - 1) & ~(PG_SZ - 1))
+// roundup_pow2: Round 'x' up to the nearest multiple of 'p', where 'p' is a power of 2.
+#define roundup_pow2(x, p) (((x) + (p) - 1) & ~((p) - 1))
+// pg_roundup: Round 'x' up to the nearest page size multiple.
+#define pg_roundup(x) roundup_pow2(x, PG_SZ)
 
-// pow2_roundup: Round sz up to the nearest power of two.
+// pow2_roundup: Round 'sz' up to the nearest power of two.
 static inline size_t pow2_roundup(size_t sz){
 	size_t s;
 	int i = flsl(sz);
@@ -100,7 +109,7 @@ static inline size_t pow2_roundup(size_t sz){
 		s <<= 1;
 	return s;
 }
-// pow2_rounddown: Round sz down to the nearest power of two.
+// pow2_rounddown: Round 'sz' down to the nearest power of two.
 static inline size_t pow2_rounddown(size_t sz){
 	int i = flsl(sz);
 	if (i < 0)
@@ -113,15 +122,28 @@ static inline size_t pow2_rounddown(size_t sz){
 #define untag_ptr(x) (x & ~1ULL)
 
 // freec: Free and clear pointer
-static inline void freec(void* ptr){
-	free(ptr);
-	ptr = NULL;
-}
+#define freec(x) do{free(x); x = NULL;} while (0)
 
 // closec: Close and clear pointer
-static inline void closec(int f){
-	close(f);
-	f = -1;
+#define closec(x) do{close(x); x = -1;} while (0)
+
+int open_pf_flags(char* path, char* file, int flags){
+	char* cat;
+	int s = strlen(path);
+	int ret;
+	cat = malloc(s + strlen(file) + 2);
+	if (cat == NULL){
+		fail_out(ENOMEM);
+	}
+	strcpy(cat, path);
+	cat[s] = '/';
+	strcpy(cat + s + 1, file);
+	ret = open(cat, flags | O_RDWR);
+	free(cat);
+	return ret;
 }
+
+#define open_pf(a, b) open_pf_flags(a, b, 0)
+#define creat_pf(a, b) open_pf_flags(a, b, O_CREAT)
 
 #endif

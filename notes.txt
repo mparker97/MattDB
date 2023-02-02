@@ -16,14 +16,14 @@ Record{
 	Data corresponding to fields
 	group id
 	Bits{
-		lock
+		lock // later
 		permissions{
 			group/others{
 				read
 				write
+				delete
 			}
 		}
-		dirty
 		valid/(deleted)?
 		
 	}
@@ -54,10 +54,12 @@ Each table has a:
 			fields
 				name (64 bytes)
 				type (1 byte?)
-			bitmaps?
+			bitmaps? // Later
 		LATER:
 			index info
 	table file
 		JUST records
+
+Metadata file with all table names
 
 */

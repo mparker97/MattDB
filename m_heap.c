@@ -22,21 +22,18 @@ int m_heap_insert(struct m_heap* mh, void* elm){ // with dups
 	char* n;
 	off_t curr, next;
 	n = a_list_add(&mh->heap);
-	if (!PERR(n)){
-		for (curr = n - &mh->heap.list, n = &mh->heap.list, next = curr / 2; next >= mh->heap.elm_sz && comparator_comp(mh->c, n + next, elm) > 0; curr = next, next /= 2){
-			memcpy(n + curr, n + next, mh->heap.elm_sz);
-		}
-		memcpy(n + curr, elm, mh->heap.elm_sz);
-		return 0;
+	for (curr = n - &mh->heap.list, n = &mh->heap.list, next = curr / 2; next >= mh->heap.elm_sz && comparator_comp(mh->c, n + next, elm) > 0; curr = next, next /= 2){
+		memcpy(n + curr, n + next, mh->heap.elm_sz);
 	}
-	return PTR_ERR(n);
+	memcpy(n + curr, elm, mh->heap.elm_sz);
+	return 0;
 }
 
 int m_heap_delete(struct m_heap* mh, void* elm){
 	char* n;
 	off_t curr, next, last;
 	if (mh->heap.cap <= 0){
-		return -E_EMPTY;
+		fail_out(E_EMPTY);
 	}
 	n = &mh->heap.list;
 	memcpy(elm, n, mh->heap.elm_sz);

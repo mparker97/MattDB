@@ -20,16 +20,20 @@ inline void bitmap_unset(bitmap_t bm, off_t idx){
 	bm[idx / BITMAP_T_SZ] &= ~(1 << (idx % BITMAP_T_SZ));
 }
 
-// "new" functions - nonzero when the idx bit is changed
+inline void bitmap_toggle(bitmap_t bm, off_t idx){
+	bm[idx / BITMAP_T_SZ] ^= (1 << (idx % BITMAP_T_SZ));
+}
 
-inline unsigned char bitmap_new_set(bitmap_t bm, off_t idx){
-	unsigned char c = bm[idx / BITMAP_T_SZ];
+// "new" functions - return nonzero when the 'idx' bit is changed
+
+inline BITMAP_T_TYPE bitmap_new_set(bitmap_t bm, off_t idx){
+	BITMAP_T_TYPE c = bm[idx / BITMAP_T_SZ];
 	bitmap_set(bm, idx);
 	return c ^ bm[idx / BITMAP_T_SZ];
 }
 
-inline unsigned char void bitmap_new_unset(bitmap_t bm, off_t idx){
-	unsigned char c = bm[idx / BITMAP_T_SZ];
+inline BITMAP_T_TYPE bitmap_new_unset(bitmap_t bm, off_t idx){
+	BITMAP_T_TYPE c = bm[idx / BITMAP_T_SZ];
 	bitmap_unset(bm, idx);
 	return c ^ bm[idx / BITMAP_T_SZ];
 }

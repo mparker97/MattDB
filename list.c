@@ -11,7 +11,7 @@ int a_list_init(struct a_list* ls, size_t init_sz, size_t elm_sz){
 	else
 		ls->sz = pow2_roundup(init_sz);
 	if ((ls->list = malloc(ls->sz * elm_sz)) == NULL){
-		return -ENOMEM;
+		failout(ENOMEM);
 	}
 	return 0;
 }
@@ -25,7 +25,7 @@ void* a_list_add(struct a_list* list){
 	if (!(list->sz & (list->sz - 1))){
 		realloc(list->list, (list->sz << 1) * list->elm_sz);
 		if (list->list == NULL){
-			return ERR_PTR(-ENOMEM);
+			failout(ENOMEM);
 		}
 	}
 	list->sz++;
@@ -34,7 +34,7 @@ void* a_list_add(struct a_list* list){
 
 int a_list_del(struct a_list* list, idx_t i){
 	if (list->sz <= 0){
-		return -E_EMPTY;
+		failout(E_EMPTY);
 	}
 	memcpy(a_list_index(list, i), a_list_index(list, list->sz - 1), list->elm_sz);
 	list->sz--;
@@ -43,7 +43,7 @@ int a_list_del(struct a_list* list, idx_t i){
 
 int a_list_del_last(struct a_list* list){
 	if (list->sz <= 0){
-		return -E_EMPTY;
+		fail_out(E_EMPTY);
 	}
 	//memset(a_list_index(list, list->cap - 1), 0, list->elm_sz);
 	list->sz--;

@@ -32,8 +32,7 @@ static struct value_list_head{
 int map_reduce_init(struct map_reduce* mr, Table* T, Field* F_key, Field* F_value, int func, off_t key_off, off_t val_off, int num_mappers, int num_reducers){
 	int ret = 0;
 	if (key_off >= T->record_sz || val_off >= T->record_sz){ // TODO: record_sz
-		ret = -EINVAL;
-		goto fail;
+		fail_out(EINVAL);
 	}
 	comparator_init(&mr->key_comp, func, offset_of(struct key_list, key));
 	mr->F_key = F_key;
@@ -63,7 +62,7 @@ void* mr_mapper(void* arg){
 	mr = (struct map_reduce*)arg;
 	ret = m_heap_init(&mh, sizeof(struct value_list_head), &mr->key_comp);
 	if (ret < 0){
-		return ERR_PTR(ret);
+		fail_out(ret);
 	}
 	
 	for (;;){
@@ -102,13 +101,11 @@ int run_mr(struct map_reduce* mr){
 	int ret = 0, i;
 	
 	if (mr->T == NULL || mr->q == NULL){
-		ret = -EUNINIT;
-		goto fail;
+		fail_out(EUNINIT);
 	}
 	mappers = malloc(mr->num_mappers * sizeof(pthread_t));
 	if (mappers == NULL){
-		ret = -ENOMEM;
-		goto fail;
+		fail_out(ENOMEM);
 	}
 	
 	for (i = 0; i < mr->num_mappers; i++){

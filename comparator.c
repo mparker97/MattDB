@@ -82,7 +82,7 @@ struct comparator{
 
 int comparator_init(struct comparator* c, int func, off_t off){
 	if (func < COMPARATOR_MIN || func > COMPARATOR_MAX){
-		return -EINVAL;
+		fail_out(EINVAL);
 	}
 	c->func = comparator_array[func];
 	c->off = off;
