@@ -36,7 +36,7 @@ enum{
 	EPANIC,		// System panic; should never happen
 	ECREAT,		// Creat failed
 	// DB specific
-	DBEBASE // DB specific start
+	DBEBASE, // DB specific start
 	ENOTAB=DBEBASE, // Table doesn't exist
 	ENOFLD,		// Field doesn't exist
 	EPRKEY,		// Primary key
@@ -44,7 +44,8 @@ enum{
 	ENOTMD,		// Table metadata file missing
 	ENOTFIL,	// Table file missing
 	ENODB,		// Database not chosen
-	
+	EREFINT,  // Referential integrity broken
+
 	NUME // End
 };
 
@@ -67,7 +68,8 @@ const static unsigned char global_errors[NUME][ERROR_NAME_LEN + 1] = {
 	[ENOTSMD] = "ENOTSMD",
 	[ENOTMD ] = "ENOTMD ",	
 	[ENOTFIL] = "ENOTFIL",
-	[ENODB  ] = "ENODB  "
+	[ENODB  ] = "ENODB  ",
+	[EREFINT] = "EREFINT"
 	
 };
 
@@ -78,7 +80,7 @@ static void print_error(const unsigned char* m, const char* file, int line){
 	fprintf(stderr, "FAIL_OUT ENCOUNTERED ERROR %s (%s:%d)\n", m, file, line);
 }
 
-#define MAX_CHECKPOINTS 10
+#define MAX_CHECKPOINTS 12
 extern int checkpoint_stack;
 extern jmp_buf checkpoints[MAX_CHECKPOINTS];
 static int fail_checkpoint(){
@@ -90,6 +92,9 @@ static int fail_checkpoint(){
 }
 
 static inline void fail_uncheckpoint(){
+	if (checkpoint_stack == 0){
+		// TODO: error
+	}
 	checkpoint_stack--;
 }
 

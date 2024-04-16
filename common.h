@@ -17,13 +17,8 @@ extern int dp_path_len;
 
 #define TABLE_NAME_SZ 64
 
-#define offset_of(t, m) ((size_t)&((t*)0)->m)
-#define container_of(t, m, p) ((t*)((char*)(p) - offset_of(t, m)))
-
-#define offset_of(typ, field) \
-	((off_t)&(((typ*)(0))->(field)))
-#define container_of(typ, field, addr) \
-	((typ*)((char*)(addr) - offset_of(typ, field)))
+#define offset_of(typ, memb) ((off_t)&((typ*)NULL)->(memb))
+#define container_of(typ, memb, ptr) ((typ*)((char*)(ptr) - offset_of(typ, memb)))
 
 /* f[fl][sz][il]:
 	Find [f]irst/[l]ast [s]igned/[z]ero bit in an [i]nteger (32-bit) / [l]ong (64-bit).
@@ -31,8 +26,9 @@ extern int dp_path_len;
 
 static inline int ffsi(uint32_t x){
 	int s;
-	if (x == 0)
+	if (x == 0){
 		return -ENOSOL;
+	}
 	for (s = 0; (x & 1) != 0; x >>= 1, s++);
 	return s;
 }
@@ -40,8 +36,9 @@ static inline int ffsi(uint32_t x){
 
 static inline int flsi(uint32_t x){
 	int s;
-	if (x == 0)
+	if (x == 0){
 		return -ENOSOL;
+	}
 	for (s = BITS_PER_BYTE * sizeof(uint32_t) - 1; (x & (BITS_PER_BYTE * sizeof(uint32_t) - 1)) != 0; x <<= 1, s--);
 	return s;
 }
@@ -49,8 +46,9 @@ static inline int flsi(uint32_t x){
 
 static inline int ffsl(uint64_t x){
 	int s;
-	if (x == 0)
+	if (x == 0){
 		return -ENOSOL;
+	}
 	for (s = 0; (x & 1) != 0; x >>= 1, s++);
 	return s;
 }
@@ -58,8 +56,9 @@ static inline int ffsl(uint64_t x){
 
 static inline int flsl(uint64_t x){
 	int s;
-	if (x == 0)
+	if (x == 0){
 		return -ENOSOL;
+	}
 	for (s = BITS_PER_BYTE * sizeof(uint64_t) - 1; (x & (BITS_PER_BYTE * sizeof(uint64_t) - 1)) != 0; x <<= 1, s--);
 	return s;
 }
@@ -102,18 +101,21 @@ static ssize_t ffzbm(uint64_t* bm, ssize_t sz){
 static inline size_t pow2_roundup(size_t sz){
 	size_t s;
 	int i = flsl(sz);
-	if (i < 0)
+	if (i < 0){
 		return 0;
+	}
 	s = 1 << i;
-	if (s < sz)
+	if (s < sz){
 		s <<= 1;
+	}
 	return s;
 }
 // pow2_rounddown: Round 'sz' down to the nearest power of two.
 static inline size_t pow2_rounddown(size_t sz){
 	int i = flsl(sz);
-	if (i < 0)
+	if (i < 0){
 		return 0;
+	}
 	return 1 << i;
 }
 
@@ -127,6 +129,7 @@ static inline size_t pow2_rounddown(size_t sz){
 // closec: Close and clear pointer
 #define closec(x) do{close(x); x = -1;} while (0)
 
+// open file at "path/file" with flags
 int open_pf_flags(char* path, char* file, int flags){
 	char* cat;
 	int s = strlen(path);

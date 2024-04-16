@@ -6,10 +6,12 @@
 int a_list_init(struct a_list* ls, size_t init_sz, size_t elm_sz){
 	ls->elm_sz = elm_sz;
 	ls->cap = 0;
-	if (init_sz == 0)
+	if (init_sz == 0){
 		ls->sz = A_LIST_INIT_SZ;
-	else
+	}
+	else{
 		ls->sz = pow2_roundup(init_sz);
+	}
 	if ((ls->list = malloc(ls->sz * elm_sz)) == NULL){
 		failout(ENOMEM);
 	}

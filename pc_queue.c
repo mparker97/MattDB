@@ -44,8 +44,9 @@ void pq_queue_deinit(struct pc_queue* q){
 
 void pc_queue_enqueue(struct pc_queue* q, void* elm){
 	pthread_mutex_lock(&q->lock);
-	while (q->cap == q->sz)
+	while (q->cap == q->sz){
 		pthread_cond_wait(&q->full, &q->lock);
+	}
 	memcpy((char*)(q->queue) + q->cap * q->elm_sz, elm, q->elm_sz);
 	q->cap++;
 	pthread_cond_signal(&q->empty);
@@ -62,8 +63,9 @@ void pc_queue_enqueue_LL(struct pc_queue* q, void* elm){
 
 void pc_queue_dequeue(struct pc_queue* q, void* elm){
 	pthread_mutex_lock(&q->lock);
-	while (q->cap == 0)
+	while (q->cap == 0){
 		pthread_cond_wait(&q->empty, &q->lock);
+	}
 	q->cap--;
 	memcpy(elm, (char*)(q->queue) + q->cap * q->elm_sz, q->elm_sz);
 	pthread_cond_signal(&q->full);
@@ -73,8 +75,9 @@ void pc_queue_dequeue(struct pc_queue* q, void* elm){
 void* pc_queue_dequeue_LL(struct pc_queue* q){
 	void* ret;
 	pthread_mutex_lock(&q->lock);
-	while (q->cap == 0)
+	while (q->cap == 0){
 		pthread_cond_wait(&q->empty, &q->lock);
+	}
 	q->cap--;
 	ret = l_list_t_del_after(&q->list, (struct l_list*)(&q->list));
 	pthread_cond_signal(&q->full);

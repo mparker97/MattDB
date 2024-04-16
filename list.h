@@ -38,8 +38,9 @@ static inline struct l_list* l_list_madd_after(struct l_list* curr){
 // insert 'n' after 'curr' and update the tail pointer if 'n' is last
 static inline void l_list_t_add_after(struct l_list_t* head, struct l_list* curr, struct l_list* n){
 	l_list_add_after(curr, n);
-	if (n->next == NULL)
+	if (n->next == NULL){
 		head->tail = n;
+	}
 }
 
 // insert and return a newly allocated heap node after 'curr' and update the tail pointer if it is last
@@ -54,16 +55,18 @@ static inline struct l_list* l_list_t_madd_after(struct l_list_t* head, struct l
 // unlink and return the node after 'curr'
 static inline struct l_list* l_list_del_after(struct l_list* curr){
 	struct l_list* ret = curr->next;
-	if (ret)
+	if (ret){
 		curr->next = ret->next;
+	}
 	return ret;
 }
 
 // unlink and return the node after 'curr' and update the tail pointer if it is last
 static inline struct l_list* l_list_t_del_after(struct l_list_t* head, struct l_list* curr){
 	struct l_list* ret = l_list_del_after(curr);
-	if (curr->next == NULL && curr != (struct l_list*)head)
+	if (curr->next == NULL && curr != (struct l_list*)head){
 		head->tail = curr;
+	}
 	return ret;
 }
 
